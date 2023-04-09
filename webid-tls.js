@@ -1,0 +1,1 @@
+export {default as verify} from "./src/verify.js";

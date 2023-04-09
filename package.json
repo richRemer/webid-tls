@@ -1,0 +1,14 @@
+{
+  "name": "@welib/webid-tls",
+  "version": "0.0.1",
+  "description": "WebID-TLS protocol library",
+  "type": "module",
+  "exports": "./webid-tls.js",
+  "scripts": {
+    "test": "echo no tests defined"
+  },
+  "dependencies": {
+    "@welib/rdf": "^0.0.1",
+    "@welib/solid-protocol": "^0.0.1"
+  }
+}
