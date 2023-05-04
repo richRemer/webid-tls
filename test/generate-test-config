@@ -1,0 +1,54 @@
+#!/bin/bash -e
+
+declare hostname=$1
+
+if test -z "$hostname"; then
+  echo "missing required host name" >&2
+  exit 1
+fi
+
+cd config
+
+echo "Configuring CA"
+cat > ca.cfg <<CFG
+cn=ca
+ca
+CFG
+
+echo "Configuring Server"
+cat > server.cfg <<CFG
+organization=server
+cn=$hostname
+dns_name=$hostname
+CFG
+
+echo "Configuring Client"
+cat > client.cfg <<CFG
+cn=client
+uri="http://$hostname/profile#id"
+CFG
+
+echo "Generating CA Key and Cert"
+certtool -p --outfile ca.key --template ca.cfg
+certtool -s --outfile ca.crt --template ca.cfg --load-privkey ca.key
+
+echo "Generating Server Key and Cert using CSR"
+certtool -p --outfile server.key --template server.cfg
+certtool -q --outfile server.csr --template server.cfg --load-privkey server.key
+certtool -c --outfile server.crt --template server.cfg --load-request server.csr --load-ca-certificate ca.crt --load-ca-privkey ca.key
+
+echo "Generating Client Key and Cert using CSR"
+certtool -p --outfile client.key --template client.cfg
+certtool -q --outfile client.csr --template client.cfg --load-privkey client.key
+certtool -c --outfile client.crt --template client.cfg --load-request client.csr --load-ca-certificate ca.crt --load-ca-privkey ca.key
+
+echo "Generating Client PKCS#12 Bundle"
+certtool --to-p12 --p12-name WebID --outder --outfile client.pfx --load-certificate client.crt --load-privkey client.key --null-password
+
+echo "Generating WebID Profile"
+webid-cert-export client.crt | tee profile.ttl
+
+echo "Success!"
+echo "There are two additional steps that need to be completed manually:"
+echo "  - Import $(pwd)/client.pfx into your browser"
+echo "  - Add $(pwd)/ca.crt to your browser's trust"

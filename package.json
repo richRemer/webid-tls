@@ -1,6 +1,6 @@
 {
   "name": "@welib/webid-tls",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "WebID-TLS protocol library",
   "type": "module",
   "exports": "./webid-tls.js",
@@ -8,7 +8,13 @@
     "test": "echo no tests defined"
   },
   "dependencies": {
-    "@welib/rdf": "^0.0.1",
-    "@welib/solid-protocol": "^0.0.1"
+    "@welib/n3-esm": "^0.0.6",
+    "@welib/rdf": "^0.0.2",
+    "@welib/solid-protocol": "^0.0.1",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
   }
 }

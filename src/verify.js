@@ -1,14 +1,11 @@
-import {cert, xsd} from "@welib/solid-protocol";
-import {Graph} from "@welib/rdf";
+import {cert as certNS, rdf as rdfNS} from "@welib/solid-protocol";
+import {Prefix} from "@welib/rdf";
 import {exportRSAPublicKey, subjectAltNames} from "./x509.js";
+import fetchProfile from "./fetch-profile.js";
 
-// IRIs needed to navigate WebID profile graph
-const key = `${cert}key`;
-const RSAPublicKey = `${cert}RSAPublicKey`;
-const exponent = `${cert}exponent`;
-const modulus = `${cert}modulus`;
-const integer = `${xsd}integer`;
-const hexBinary = `${xsd}hexBinary`;
+// IRI prefix necessary to navigate WebID profile
+const cert = new Prefix(certNS);
+const rdf = new Prefix(rdfNS);
 
 /**
  * Verify certificate public key matches a WebID and return the verified WebID.
@@ -29,17 +26,19 @@ export default async function verify(cert) {
   }
 
   const webid = uris[0];
-  const graph = await Graph.fetch(webid);
-  const keys = graph.findObjects(webid, key);
-  const isRSAPublicKey = graph.typeFilter(RSAPublicKey);
+  const profile = await fetchProfile(webid);
   const publicKey = exportRSAPublicKey(cert);
 
-  for (const subject of keys.filter(isRSAPublicKey)) {
-    const exp = graph.readLiteral(subject, exponent, integer);
-    const mod = BigInt("0x" + graph.readLiteral(subject, modulus, hexBinary));
+  for (const {object: node} of profile.filter(webid, cert.key)) {
+    const certInfo = profile.filter(node).allPO(true);
 
-    if (exp != publicKey.exponent) return false;
-    if (mod != publicKey.modulus) return false;
+    if (certInfo[rdf.type] === cert.RSAPublicKey) {
+      const exp = BigInt(certInfo[cert.exponent]);
+      const mod = BigInt("0x" + certInfo[cert.modulus].toString("hex"));
+
+      if (exp !== publicKey.exponent) return false;
+      if (mod !== publicKey.modulus) return false;
+    }
   }
 
   return webid;
