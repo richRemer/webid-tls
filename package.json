@@ -1,6 +1,6 @@
 {
   "name": "@welib/webid-tls",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "WebID-TLS protocol library",
   "type": "module",
   "exports": "./webid-tls.js",

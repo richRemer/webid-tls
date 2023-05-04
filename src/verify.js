@@ -3,7 +3,7 @@ import {Prefix} from "@welib/rdf";
 import {exportRSAPublicKey, subjectAltNames} from "./x509.js";
 import fetchProfile from "./fetch-profile.js";
 
-// IRI prefix necessary to navigate WebID profile
+// IRI prefixes necessary to navigate WebID profile
 const cert = new Prefix(certNS);
 const rdf = new Prefix(rdfNS);
 
@@ -13,21 +13,22 @@ const rdf = new Prefix(rdfNS);
  * WebID profile document, and the profile must present an RSAPublicKey with a
  * matching exponent and modulus.
  *
- * @param {X509Certificate} cert
+ * @param {X509Certificate} certificate
  * @returns {string}
  */
-export default async function verify(cert) {
-  const uris = subjectAltNames(cert, "URI").map(n => n.slice("URI:".length));
+export default async function verify(certificate) {
+  const URIs = subjectAltNames(certificate, "URI");
+  const uris = URIs.map(n => n.slice("URI:".length));
 
   if (uris.length !== 1) {
     return false;
-  } else if (cert.publicKey.asymmetricKeyType !== "rsa") {
+  } else if (certificate.publicKey.asymmetricKeyType !== "rsa") {
     return false;
   }
 
   const webid = uris[0];
   const profile = await fetchProfile(webid);
-  const publicKey = exportRSAPublicKey(cert);
+  const publicKey = exportRSAPublicKey(certificate);
 
   for (const {object: node} of profile.filter(webid, cert.key)) {
     const certInfo = profile.filter(node).allPO(true);
