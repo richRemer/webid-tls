@@ -13,10 +13,14 @@ const rdf = new Prefix(rdfNS);
  * WebID profile document, and the profile must present an RSAPublicKey with a
  * matching exponent and modulus.
  *
- * @param {X509Certificate} certificate
+ * @param {X509Certificate|object} certificate
  * @returns {string}
  */
 export default async function verify(certificate) {
+  // prefer an X509Certificate, but if instead a POJO format cert from calling
+  // req.connection.getPeerCertificate(), convert it
+  if (certificate.der) certificate = new X509Certificate(certificate.der);
+
   const URIs = subjectAltNames(certificate, "URI");
   const uris = URIs.map(n => n.slice("URI:".length));
 
