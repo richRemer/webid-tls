@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./webid-tls.js",
   "scripts": {
-    "test": "echo no tests defined"
+    "test": "mocha"
   },
   "dependencies": {
     "@welib/n3-esm": "^0.0.6",
@@ -14,7 +14,8 @@
     "node-fetch": "^3.3.1"
   },
   "devDependencies": {
-    "express": "^4.18.2",
-    "morgan": "^1.10.0"
+    "expect.js": "^0.3.1",
+    "mocha": "^10.2.0",
+    "node-forge": "^1.3.1"
   }
 }
