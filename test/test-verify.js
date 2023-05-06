@@ -31,14 +31,14 @@ describe("verify(X509Certificate)", () => {
   });
 
   it("should work with getPeerCertificate PEM-encoded cert", async () => {
-    const pem = PEMCert(`URI:${webid}`);
-    const cert = new X509Certificate(pem);
+    const raw = PEMCert(`URI:${webid}`);
+    const cert = new X509Certificate(raw);
     const {exponent, modulus} = exportRSAPublicKey(cert);
     const profile = Profile(webid, exponent, modulus);
 
     httpServer.on("request", Listener(profile));
 
-    expect(await verify({der: pem})).to.be(webid);
+    expect(await verify({raw})).to.be(webid);
   });
 
   it("should filter profile for WebID subject", async () => {

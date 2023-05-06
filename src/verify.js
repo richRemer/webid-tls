@@ -18,11 +18,11 @@ const rdf = new Prefix(rdfNS);
  * @returns {string}
  */
 export default async function verify(certificate) {
-  if (certificate.der) {
-    certificate = new X509Certificate(certificate.der);
+  if (certificate.raw) {
+    certificate = new X509Certificate(certificate.raw);
   }
 
-  if (certificate.publicKey.asymmetricKeyType !== "rsa") {
+  if (certificate.publicKey?.asymmetricKeyType !== "rsa") {
     return false;
   }
 
